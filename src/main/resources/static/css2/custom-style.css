@@ -1,0 +1,44 @@
+/* 文字色 */
+.text-lime {
+    color: lime !important;
+    /* Bootstrap の $orange-500 の実際の色コード */
+}
+
+.text-orange {
+    color: orange !important;
+}
+
+.text-cokered {
+    color: #F40009 !important;
+}
+
+/* 赤文字打ち消し線 */
+.text-decorate-cokered {
+    color: #F40009 !important;
+    text-decoration: line-through;
+}
+
+.text-decorate-secondary {
+    color: #6c757d !important;
+    text-decoration: line-through;
+}
+
+/* 背景色 */
+.btn-bg-lime {
+    background-color: lime !important;
+}
+
+.btn-bg-orange {
+    background-color: orange !important;
+    border-color: orange !important;
+    color: black;
+}
+
+.btn-bg-cokered {
+    background-color: #f40009 !important;
+    border-color: #f40009;
+}
+
+.menu-bg-black {
+    background-color: black !important;
+}

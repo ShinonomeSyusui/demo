@@ -1,0 +1,53 @@
+h1,
+h3 {
+    text-align: center;
+    margin: 5px;
+}
+
+.mainTitle {
+    margin-left: 30px;
+}
+
+form {
+    margin-top: 10px;
+}
+
+table {
+    margin: auto;
+}
+
+td {
+    text-align: center;
+}
+
+table,
+td {
+    /* border-collapse: separate; */
+    border: solid 1px red;
+}
+
+.btn {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.subbtn {
+    display: inline-block;
+    background-color: skyblue;
+    /* border: solid 1px skyblue; */
+    border: none;
+    border-radius: 5px;
+    width: 50px;
+}
+
+.subbtn:hover {
+    background-color: aqua;
+}
+
+.genderMap {
+    display: inline;
+}
+
+.back {
+    text-align: center;
+}

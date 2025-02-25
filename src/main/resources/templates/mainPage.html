@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>予定一覧ページ</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css2/custom-style.css}">
+    <!-- <link rel="stylesheet" th:href="@{/css2/mainPage.css}"> -->
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="mt-3">
+
+            </div>
+
+            <div class="container-fluid">
+                <nav class="mt-3 navbar d-flex justify-content-between align-items-center bg-light p-3 rounded">
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="/logout" class="btn btn-outline-success">ログアウト</a>
+                        <h2 class="mb-0">予定一覧ページ</h2>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <p th:if="${isAdmin == false}" class="mb-0 me-3">
+                            こんにちは <span th:text="${username}" class="fw-bold"></span> さん
+                        </p>
+                        <div th:if="${isAdmin}" class="me-3">
+                            <span class="badge bg-primary fs-6">管理者モード</span>
+                        </div>
+                        <a href="/createTaskPage" class="btn btn-outline-danger">新規予定の登録</a>
+                    </div>
+                </nav>
+            </div>
+
+            <!-- <div class="">
+                <nav class="mt-3 navbar d-flex justify-content-evenly">
+                    <a href="/logout" class="btn btn-outline-success d-inline">ログアウト</a>
+                    <h2 class="d-inline">予定一覧ページ</h2>
+                    <p th:if="${isAdmin == false}" class="d-inline mb-0">こんにちは&nbsp;&nbsp;<span
+                            th:text="${username}"></span>&nbsp;&nbsp;さん
+                    </p>
+                    <div th:if="${isAdmin}">
+                        <b class="d-inline mb-0">管理者モード</b>
+                    </div>
+                    <a href="/createTaskPage" class="btn btn-outline-danger d-inline">新規予定の登録</a>
+                </nav>
+            </div> -->
+            <div class="mt-3">
+                <p class="text-end">総スケジュール数: <span th:text="${countAll}"></span>件</p>
+            </div>
+        </header>
+
+        <!-- admin権限時のみ表示される検索フォーム -->
+        <div th:if="${isAdmin}" class="mb-3">
+            <form th:action="@{/mainPage}" method="get" class="d-flex gap-3">
+                <div class="d-flex gap-2">
+                    <input type="text" name="usersName" class="form-control" placeholder="ユーザー名で検索"
+                        th:value="${searchUsername}">
+                    <button type="submit" class="btn btn-primary" style="width: 200px;">検索</button>
+                </div>
+
+                <!-- 年月選択 -->
+                <div class="d-flex gap-2">
+                    <select name="year" class="form-select" style="width: 120px;">
+                        <option th:each="y : ${#numbers.sequence(2020, 2030)}" th:value="${y}" th:text="${y + '年'}"
+                            th:selected="${y == selectedYear}">
+                        </option>
+                    </select>
+                    <select name="month" class="form-select" style="width: 100px;">
+                        <option th:each="m : ${#numbers.sequence(1, 12)}" th:value="${m}" th:text="${m + '月'}"
+                            th:selected="${m == selectedMonth}">
+                        </option>
+                    </select>
+                    <button type="submit" class="btn btn-secondary">月別表示</button>
+                </div>
+                <div>
+                    <a th:href="@{/mainPage(showAll='true')}" class="btn btn-outline-success">全ユーザー全タスク表示</a>
+
+                </div>
+            </form>
+        </div>
+
+
+        <div class="mt-3">
+            <div th:if="${isAdmin == false}" class="d-flex justify-content-between align-items-center mb-3">
+                <!-- 前月へのリンク -->
+                <a th:href="@{/mainPage(year=${selectedMonth == 1 ? selectedYear - 1 : selectedYear},
+                month=${selectedMonth == 1 ? 12 : selectedMonth - 1})}" class="btn btn-outline-primary">
+                    &lt; 前月
+                </a>
+
+                <!-- 現在の年月表示 -->
+                <div class="d-flex align-items-center gap-3">
+                    <h3 th:text="${selectedYear + '年' + selectedMonth + '月'}"></h3>
+                    <a th:href="@{/mainPage}" class="btn btn-sm btn-outline-secondary">今月</a>
+                </div>
+                <!-- 翌月へのリンク -->
+                <a th:href="@{/mainPage(year=${selectedMonth == 12 ? selectedYear + 1 : selectedYear},
+                month=${selectedMonth == 12 ? 1 : selectedMonth + 1})}" class="btn btn-outline-primary">
+                    翌月 &gt;
+                </a>
+            </div>
+
+            <form th:if="${isAdmin == false}" th:action="@{/mainPage}" method="get"
+                class="d-flex justify-content-end gap-2 mb-3">
+                <select name="year" class="form-select" style="width: auto;">
+                    <option th:each="y : ${#numbers.sequence(2024, 2034)}" th:value="${y}" th:text="${y + '年'}"
+                        th:selected="${y == selectedYear}">
+                    </option>
+                </select>
+                <select name="month" class="form-select" style="width: auto;">
+                    <option th:each="m : ${#numbers.sequence(1, 12)}" th:value="${m}" th:text="${m + '月'}"
+                        th:selected="${m == selectedMonth}">
+                    </option>
+                </select>
+                <button type="submit" class="btn btn-primary">検索</button>
+            </form>
+            <!-- <div class="mainTitle">
+            <h1>作業一覧</h1>
+        </div> -->
+            <div class="result_table table-responsive">
+                <table class="table table-dark table-striped table-bordered table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th class="text-center">優先度</th>
+                            <th class="text-center">進捗</th>
+                            <th class="text-center">タスク名</th>
+                            <th class="text-center">詳細</th>
+                            <th class="text-center" th:if="${isAdmin}">ユーザー名</th>
+                            <th class="text-center">予定日</th>
+                            <th class="text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        <tr th:each="item : ${task}">
+                            <form action="/taskChange" method="post">
+                                <input type="hidden" th:value="${item.id}" name="taskId">
+                                <input type="hidden" th:value="${selectedYear}" name="year">
+                                <input type="hidden" th:value="${selectedMonth}" name="month">
+                                <input type="hidden" th:value="${currentPage}" name="page">
+                                <!-- 優先度 -->
+                                <td class="text-center" th:text="${item.getPriorityDisplay()}"
+                                    th:classappend="${item.textColorPriorityDisplay}">
+                                </td>
+                                <!-- 進捗 -->
+                                <td class="text-center" th:text="${item.status}" th:classappend="${item.textcolors}">
+                                </td>
+                                <!-- タスク名 -->
+                                <td class="text-center" th:text="${item.title}"
+                                    th:classappend="${item.textDecorateColors}">
+                                </td>
+                                <!-- 詳細 -->
+                                <td class="text-center" th:text="${item.description}"
+                                    th:classappend="${item.textDecorateColors}">
+                                </td>
+                                <!-- ※admin権限、ユーザー名 -->
+                                <td class="text-center" th:if="${isAdmin}" th:text="${item.username}"></td>
+                                <!-- 期限日 -->
+                                <td class="text-center" th:text="${#dates.format(item.DueDate,'yyyy年MM月dd日(E)')}"
+                                    th:classappend="${item.textDecorateColors}">
+                                </td>
+                                <!-- 操作ボタン -->
+                                <td class="text-center">
+                                    <!-- 修正ボタン -->
+                                    <a class="btn btn-secondary" th:unless="${item.status == '完了'}"
+                                        th:href="@{/createTaskPage/edit(taskId=${item.id})}">修正</a>
+                                    <!-- 進捗変更 -->
+                                    <button class="btn btn-primary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false"
+                                        th:unless="${item.status == '完了'}"
+                                        th:classappend="${item.status == '確認中'} ? 'btn-bg-orange' :
+                                        (${item.status == '進行中'} ? 'btn-info' :
+                                        (${item.status == '未着手'} ? 'btn-light' :
+                                        (${item.status == 'キャンセル' or item.status == '中止'} ? 'btn-bg-cokered' : '')))">進捗変更</button>
+                                    <ul class="dropdown-menu menu-bg-black">
+                                        <li th:unless="${item.status == '未着手'}"><a class="dropdown-item text-secondary"
+                                                th:href="@{/statusSelect/1(taskId=${item.id}, year=${selectedYear}, month=${selectedMonth}, page=${currentPage})}">未着手</a>
+                                        </li>
+                                        <li th:unless="${item.status == '確認中'}"><a class="dropdown-item text-orange"
+                                                th:href="@{/statusSelect/2(taskId=${item.id}, year=${selectedYear}, month=${selectedMonth}, page=${currentPage})}">確認中</a>
+                                        </li>
+                                        <li th:unless="${item.status == '進行中'}"><a class="dropdown-item text-primary"
+                                                th:href="@{/statusSelect/3(taskId=${item.id}, year=${selectedYear}, month=${selectedMonth}, page=${currentPage})}">進行中</a>
+                                        </li>
+                                        <li
+                                            th:unless="${item.status == '確認中' or item.status == '進行中' or item.status == 'キャンセル' or item.status == '中止'}">
+                                            <a class="dropdown-item text-cokered"
+                                                th:href="@{/statusSelect/5(taskId=${item.id}, year=${selectedYear}, month=${selectedMonth}, page=${currentPage})}">中止</a>
+                                        </li>
+                                        <li
+                                            th:unless="${item.status == '未着手' or item.status == '中止' or item.status == 'キャンセル'}">
+                                            <a class="dropdown-item text-cokered"
+                                                th:href="@{/statusSelect/6(taskId=${item.id}, year=${selectedYear}, month=${selectedMonth}, page=${currentPage})}">キャンセル</a>
+                                        </li>
+                                    </ul>
+                                    <!-- 完了ボタン -->
+                                    <button class="btn" type="submit" value="2" name="action"
+                                        th:classappend="btn-bg-lime" th:unless=" ${item.status=='完了' or item.status=='中止' or item.status=='キャンセル'
+                                        }">完了</button>
+                                    <!-- 削除ボタン -->
+                                    <button class="btn btn-bg-cokered" type="submit" value="3" name="action">削除</button>
+                                </td>
+                            </form>
+                        </tr>
+                    </tbody>
+                    <tr></tr>
+                </table>
+            </div>
+            <nav aria-label="ページネーション">
+                <ul class="pagination justify-content-center" th:if="${countAll > 10}">
+                    <li class="page-item" th:classappend="${currentPage == 1} ? 'disabled'">
+                        <a class="page-link"
+                            th:href="@{/mainPage(page=${currentPage - 1},year=${selectedYear}, month=${selectedMonth}, usersName=${searchUsername})}"
+                            aria-label="前へ">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+
+                    <li class="page-item" th:each="pageNum : ${#numbers.sequence(1, totalPages)}"
+                        th:classappend="${pageNum == currentPage} ? 'active'">
+                        <a class="page-link"
+                            th:href="@{/mainPage(page=${pageNum},year=${selectedYear}, month=${selectedMonth}, usersName=${searchUsername})}"
+                            th:text="${pageNum}">1</a>
+                    </li>
+
+                    <li class="page-item" th:classappend="${currentPage == totalPages} ? 'disabled'">
+                        <a class="page-link"
+                            th:href="@{/mainPage(page=${currentPage + 1},year=${selectedYear}, month=${selectedMonth}, usersName=${searchUsername})}"
+                            aria-label="次へ">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- <nav aria-label="Page navigation example">
+                <ul class="pagination justify-content-center" th:if="${countAll > 10}">
+                    <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div> -->
+        </div>
+</body>
+
+</html>

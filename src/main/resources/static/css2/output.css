@@ -1,0 +1,33 @@
+.mainTitle{
+    text-align: center;
+}
+table{
+    margin: auto;
+}
+table, th, td{
+    border: solid 1px red;
+}
+td{
+    text-align: center;
+}
+.linkbtns{
+    margin: 10px 0px;
+    text-align: center;
+    /* margin-top: 10px; */
+    /* margin-left: 125px; */
+}
+.rinkbtn{
+    display: inline-block;
+    border: solid 1px skyblue;
+    border-radius: 5px;
+    width: 50px;
+    height: 20px;
+    padding: 3px 0px;
+    background-color: skyblue;
+    color: black;
+    text-decoration: none;
+    text-align: center;
+}
+.rinkbtn:hover{
+    background-color: aqua;
+}

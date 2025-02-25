@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ja">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=, initial-scale=1.0" />
+    <link rel="stylesheet" th:href="@{/css2/output.css}" />
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="mainTitle">
+        <h1>入力内容確認画面</h1>
+    </div>
+    <form action="/signup/signupValidation" method="post" th:object="${signupForm}">
+        <table>
+            <tr>
+                <th>項目</th>
+                <th>入力内容</th>
+            </tr>
+            <tr>
+                <td th:text="#{name}"></td>
+                <td><input type="text" th:field="*{name}" readonly></td>
+            </tr>
+            <!-- <tr>
+                <td th:text="#{address}"></td>
+                <td th:text="*{address}"></td>
+            </tr>
+            <tr>
+                <td th:text="#{age}"></td>
+                <td th:text="*{age}"></td>
+            </tr>
+            <tr>
+                <td th:text="#{birth}"></td>
+                <td th:text="${birth}"></td>
+            </tr>
+            <tr>
+                <td th:text="#{gender}"></td>
+                <td th:text="${gender}"></td>
+            </tr>
+            <tr>
+                <td th:text="#{bloodType}"></td>
+                <td th:text="*{bloodType}"></td>
+            </tr> -->
+            <tr>
+                <td th:text="#{email}"></td>
+                <td><input type="email" th:field="*{email}" readonly></td>
+            </tr>
+            <tr>
+                <td th:text="#{password}"></td>
+                <td><input type="text" th:field="*{password}" readonly></td>
+            </tr>
+            <input type="hidden" name="roleName" value="USER">
+        </table>
+        <div class="linkbtns">
+            <button type="submit">登録</button>
+        </div>
+    </form>
+    <div class="linkbtns">
+        <a href="/signup" class="rinkbtn">戻る</a>
+    </div>
+</body>
+
+</html>

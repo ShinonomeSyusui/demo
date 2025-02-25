@@ -1,0 +1,71 @@
+.text-orange-500 {
+    color: #fd7e14;
+}
+
+
+
+
+/* .completed-task { */
+/* color: gray; */
+/* 文字色を灰色に */
+/* background-color: #f9f9f9; */
+/* 背景を淡い灰色に */
+/* text-decoration: line-through; */
+/* （必要なら）取り消し線を追加 */
+/* } */
+
+/* header {
+    background-color: aqua;
+}
+
+h2 {
+    color: coral;
+    text-align: start;
+}
+
+h1 {
+    text-align: center;
+}
+
+.result_table {
+    text-align: center;
+}
+
+table {
+    display: inline-block
+}
+
+th,
+td {
+    border-left: solid 1px red;
+    border-bottom: solid 1px red;
+}
+
+button {
+    border: none;
+    border-radius: 5px;
+}
+
+.update {
+    background-color: limegreen;
+}
+
+.completed {
+    background-color: yellow;
+}
+
+.delete {
+    background-color: red;
+}
+
+.update:hover {
+    background-color: darkgray;
+}
+
+.completed:hover {
+    background-color: darkgray;
+}
+
+.delete:hover {
+    background-color: darkgrey;
+} */
