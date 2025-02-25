@@ -105,21 +105,26 @@
                     翌月 &gt;
                 </a>
             </div>
-
-            <form th:if="${isAdmin == false}" th:action="@{/mainPage}" method="get"
-                class="d-flex justify-content-end gap-2 mb-3">
-                <select name="year" class="form-select" style="width: auto;">
-                    <option th:each="y : ${#numbers.sequence(2024, 2034)}" th:value="${y}" th:text="${y + '年'}"
-                        th:selected="${y == selectedYear}">
-                    </option>
-                </select>
-                <select name="month" class="form-select" style="width: auto;">
-                    <option th:each="m : ${#numbers.sequence(1, 12)}" th:value="${m}" th:text="${m + '月'}"
-                        th:selected="${m == selectedMonth}">
-                    </option>
-                </select>
-                <button type="submit" class="btn btn-primary">検索</button>
-            </form>
+            <div class="d-flex justify-content-between">
+                <div>
+                    <a th:href="@{/calendar(year=${selectedYear}, month=${selectedMonth})}"
+                        class="btn btn-bg-orange">カレンダーを表示</a>
+                </div>
+                <form th:if="${isAdmin == false}" th:action="@{/mainPage}" method="get"
+                    class="d-flex justify-content-end gap-2 mb-3">
+                    <select name="year" class="form-select" style="width: auto;">
+                        <option th:each="y : ${#numbers.sequence(2024, 2034)}" th:value="${y}" th:text="${y + '年'}"
+                            th:selected="${y == selectedYear}">
+                        </option>
+                    </select>
+                    <select name="month" class="form-select" style="width: auto;">
+                        <option th:each="m : ${#numbers.sequence(1, 12)}" th:value="${m}" th:text="${m + '月'}"
+                            th:selected="${m == selectedMonth}">
+                        </option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">検索</button>
+                </form>
+            </div>
             <!-- <div class="mainTitle">
             <h1>作業一覧</h1>
         </div> -->

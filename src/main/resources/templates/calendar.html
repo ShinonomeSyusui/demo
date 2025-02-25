@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カレンダー</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css2/custom-style.css}">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <div class="mi-3"></div>
+
+            <div class="container-fluid">
+                <nav class="mt-3 navbar d-flex justify-content-between align-items-center bg-light p-3 rounded">
+                    <div class="d-flex align-items-center gap-3">
+                        <a href="/logout" class="btn btn-outline-success">ログアウト</a>
+                        <h2 class="mb-0">カレンダーページ</h2>
+                    </div>
+
+                    <div class="d-flex align-items-center">
+                        <p th:if="${isAdmin == false}" class="mb-0 me-3">
+                            こんにちは <span th:text="${username}" class="fw-bold"></span> さん
+                        </p>
+                        <div th:if="${isAdmin}" class="me-3">
+                            <span class="badge bg-primary fs-6">管理者モード</span>
+                        </div>
+                        <a href="/createTaskPage" class="btn btn-outline-danger">新規予定の登録</a>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="calendar-header d-flex justify-content-between m-3 align-items-center gap-3">
+                <a th:href="@{/calendar(year=${prevYear},month=${prevMonth})}" class="btn btn-info">&lt; 前月</a>
+                <div class="d-flex align-items-center gap-3">
+                    <h2>[[${currentYear}]]年[[${currentMonth}]]月</h2>
+                    <a th:href="@{/calendar}" class="btn btn-sm btn-outline-secondary">今月</a>
+                </div>
+                <a th:href="@{/calendar(year=${nextYear},month=${nextMonth})}" class="btn btn-info">翌月 &gt;</a>
+            </div>
+            <div class="d-flex justify-content-between align-items-center m-3">
+                <div>
+                    <a th:href="@{/mainPage(year=${currentYear},month=${currentMonth})}"
+                        class="btn btn-bg-lime">一覧に戻る</a>
+                </div>
+
+                <form th:action="@{/calendar(year=${currentYear},month=${currentMonth})}" method="get"
+                    class="d-flex justify-content-end gap-2 mb-3">
+                    <select name="year" class="form-select" style="width: auto;">
+                        <option th:each="y : ${#numbers.sequence(2024, 2034)}" th:value="${y}" th:text="${y + '年'}"
+                            th:selected="${y == selectedYear}">
+                        </option>
+                    </select>
+                    <select name="month" class="form-select" style="width: auto;">
+                        <option th:each="m : ${#numbers.sequence(1, 12)}" th:value="${m}" th:text="${m + '月'}"
+                            th:selected="${m == selectedMonth}">
+                        </option>
+                    </select>
+                    <button type="submit" class="btn btn-primary">検索</button>
+                </form>
+            </div>
+            <div class="mt-3"></div>
+        </header>
+
+        <div class="result_table table-responsive m-3">
+            <table class="table table-bordered table-dark calendar-table table-hover table-striped align-middle">
+                <thead>
+                    <tr>
+                        <th th:each="weekDay : ${weekDays}" th:text="${weekDay}" th:class="${weekDayStat.index == 0 ? 'text-danger' : ''} + ' ' + 
+                        ${weekDayStat.index == 6 ? 'text-primary' : ''} + ' text-center'"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="week : ${calendar}">
+                        <td th:each="day, dayStat : ${week}" th:class="${day.getMonthValue() == currentMonth ? 'current-month' : 'other-month'} + ' ' +
+                            ${dayStat.index == 0 ? 'text-danger' : ''} + ' ' +
+                            ${dayStat.index == 6 ? 'text-primary' : ''} + ' text-center'">
+                            <!-- <td th:each="day : ${week}"
+                            th:class="${day.getMonthValue() == currentMonth ? 'current-month' : 'other-month'}" </td> -->
+                            <div class="date">[[${day.getDayOfMonth()}]]</div>
+                            <div class="tasks">
+                                <!-- タスク表示 -->
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+
+</body>
+
+</html>
