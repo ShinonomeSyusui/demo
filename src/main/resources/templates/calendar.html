@@ -7,6 +7,7 @@
     <title>カレンダー</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/calendar.js"></script>
     <link rel="stylesheet" th:href="@{/css2/custom-style.css}">
 </head>
 
@@ -48,6 +49,9 @@
                         class="btn btn-bg-lime">一覧に戻る</a>
                 </div>
 
+                <input type="hidden" id="selectedYear" th:value="${currentYear}">
+                <input type="hidden" id="selectedMonth" th:value="${currentMonth}">
+
                 <form th:action="@{/calendar(year=${currentYear},month=${currentMonth})}" method="get"
                     class="d-flex justify-content-end gap-2 mb-3">
                     <select name="year" class="form-select" style="width: auto;">
@@ -71,29 +75,73 @@
                 <thead>
                     <tr>
                         <th th:each="weekDay : ${weekDays}" th:text="${weekDay}" th:class="${weekDayStat.index == 0 ? 'text-danger' : ''} + ' ' + 
-                        ${weekDayStat.index == 6 ? 'text-primary' : ''} + ' text-center'"></th>
+                        ${weekDayStat.index == 6 ? 'text-primary' : ''} + ' text-center'" style="width: 350px;"></th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr th:each="week : ${calendar}">
                         <td th:each="day, dayStat : ${week}" th:class="${day.getMonthValue() == currentMonth ? 'current-month' : 'other-month'} + ' ' +
                             ${dayStat.index == 0 ? 'text-danger' : ''} + ' ' +
-                            ${dayStat.index == 6 ? 'text-primary' : ''} + ' text-center'">
+                            ${dayStat.index == 6 ? 'text-primary' : ''} + ' align-top'" style="height: 100px;">
                             <!-- <td th:each="day : ${week}"
                             th:class="${day.getMonthValue() == currentMonth ? 'current-month' : 'other-month'}" </td> -->
                             <div class="date">[[${day.getDayOfMonth()}]]</div>
                             <div class="tasks">
                                 <!-- タスク表示 -->
+                                <div th:each="task : ${monthTasks}"
+                                    th:if="${task.dueDate.toLocalDateTime().toLocalDate().isEqual(day)}"
+                                    class="task-item">
+                                    <span th:text="${task.title}"
+                                        th:class="${'badge ' + task.textBadgeColors() + ' hover-shadow'}"
+                                        th:data-task-id="${task.id}" th:data-task-title="${task.title}"
+                                        th:data-task-description="${task.description}"
+                                        th:data-task-status="${task.status}"
+                                        th:data-task-due-date="${#dates.format(task.dueDate, 'yyyy-MM-dd(E)')}"
+                                        onclick="showTaskDetail(this)" style="cursor: pointer;">
+                                    </span>
+                                </div>
                             </div>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+        <!-- タスク詳細モーダル -->
+        <div class="modal fade" id="taskDetailModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">タスク詳細</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <strong>タイトル：</strong>
+                            <span id="taskTitle"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>詳細：</strong>
+                            <span id="taskDescription"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>進捗状況：</strong>
+                            <span id="taskStatus"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>期限：</strong>
+                            <span id="taskDueDate"></span>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="editTask()">修正</button>
+                        <button type="button" class="btn btn-bg-cokered" onclick="deleteTask()">削除</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
-
-
-
 </body>
 
 </html>

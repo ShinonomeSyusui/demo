@@ -53,18 +53,28 @@ public class TaskDto {
         return null;
     }
 
+    /**
+     * 優先度に応じて表示用の文字列を返すメソッド
+     * 
+     * @return 表示用の文字列
+     */
     public String getPriorityDisplay() {
         if (this.priority == 1)
-            return "至急！";
+            return "至急！"; // 優先度が1の場合は"至急！"を返す
         if (this.priority == 2)
-            return "高";
+            return "高"; // 優先度が2の場合は"高"を返す
         if (this.priority == 3)
-            return "中";
+            return "中"; // 優先度が3の場合は"中"を返す
         if (this.priority == 4)
-            return "低";
-        return "未設定";
+            return "低"; // 優先度が4の場合は"低"を返す
+        return "未設定"; // 上記の条件に当てはまらない場合は"未設定"を返す
     }
 
+    /**
+     * 優先度に応じて適切なテキスト色を返すメソッド
+     * 
+     * @return テキスト色を表す文字列
+     */
     public String textColorPriorityDisplay() {
         if (this.priority == 1)
             return "text-cokered"; // 至急！
@@ -77,28 +87,24 @@ public class TaskDto {
         return null; // 未設定
     }
 
-    // public String textColorPriorityDisplay() {
-    // if (this.priority.equals("緊急") || this.priority.equals("高"))
-    // return "text-cakered";
-    // if (this.priority.equals("中"))
-    // return "text-orange";
-    // if (this.priority.equals("低"))
-    // return "text-lime";
-    // if (this.priority.equals("未設定"))
-    // return "text-info";
-    // return null;
-    // }
-
-    // public String getPriorityDisplay() {
-    // return switch (this.priority) {
-    // case 1 -> "🚨 緊急";
-    // case 2 -> "🔥 高";
-    // case 3 -> "⌛ 中";
-    // case 4 -> " 低";
-    // case 5 -> "💤 未設定";
-    // default -> "";
-    // };
-    // }
+    /**
+     * ステータスに応じて適切なバッジの色を返すメソッド
+     * 
+     * @return バッジの色を表す文字列
+     */
+    public String textBadgeColors() {
+        if (this.status.equals("完了"))
+            return "bg-secondary text-decoration-line-through"; // 完了状態の場合は灰色で取り消し線をつける
+        if (this.status.equals("確認中"))
+            return "btn-bg-orange"; // 確認中の場合はオレンジ色の背景
+        if (this.status.equals("進行中"))
+            return "bg-info"; // 進行中の場合は青色の背景
+        if (this.status.equals("中止") || this.status.equals("キャンセル"))
+            return "btn-bg-cokered text-decoration-line-through"; // 中止またはキャンセルの場合は赤色の背景で取り消し線をつける
+        if (this.status.equals("未着手"))
+            return "bg-light text-dark"; // 未着手の場合は薄い灰色の背景に黒色のテキスト
+        return "bg-secondary"; // 上記条件に当てはまらない場合は灰色の背景を返す
+    }
 
     public String getPriorityColorClass() {
         return "priority-" + (this.priority != null ? this.priority : 5);

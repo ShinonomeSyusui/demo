@@ -4,13 +4,24 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.domain.dto.TaskDto;
+import com.example.demo.domain.repository.MainPageRepository;
+import com.example.demo.domain.service.MainPageService;
+
 @Controller
 public class CalendarController {
+
+    @Autowired
+    MainPageService service;
+
+    @Autowired
+    MainPageRepository repository;
 
     /**
      * カレンダーを表示するメソッド
@@ -60,6 +71,13 @@ public class CalendarController {
         LocalDate prevMonth = firstDay.minusMonths(1);
         LocalDate nextMonth = firstDay.plusMonths(1);
 
+        // ログインユーザーの情報取得
+        Integer userId = service.getLoggedInUserId();
+        String username = repository.getUserNameById(userId);
+        boolean isAdmin = service.isAdmin();
+
+        List<TaskDto> monthTasks = repository.getTaskByMonth(userId, year, month, 0, Integer.MAX_VALUE);
+
         // モデルに属性を追加
         model.addAttribute("calendar", calendar);
         model.addAttribute("currentYear", year);
@@ -69,6 +87,10 @@ public class CalendarController {
         model.addAttribute("nextYear", nextMonth.getYear());
         model.addAttribute("nextMonth", nextMonth.getMonthValue());
         model.addAttribute("weekDays", weekDays);
+        model.addAttribute("username", username);
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("monthTasks", monthTasks);
+        System.out.println(monthTasks + "ここだよ");
 
         return "calendar";
     }
