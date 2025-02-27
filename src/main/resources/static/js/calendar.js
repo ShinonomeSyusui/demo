@@ -101,22 +101,16 @@ function handleDragOver(event) {
 
 
 function handleDrop(event) {
-    // デフォルトの動作を無効にする
     event.preventDefault();
-
-    // ドラッグされたタスクのIDを取得
     const taskId = event.dataTransfer.getData('text/plain');
-
-    // ドロップ先のセルを取得
     const cell = event.target.closest('td');
     const dateElement = cell.querySelector('.date');
-    const dropDate = dateElement.textContent;
+    // trim()を使用して余分な空白を除去
+    const dropDate = dateElement.textContent.trim();
 
-    // 年月を取得
     const year = document.getElementById('selectedYear').value;
     const month = document.getElementById('selectedMonth').value;
 
-    // タスク更新をサーバーに送信
     fetch('/editTask', {
         method: 'POST',
         headers: {
@@ -131,12 +125,12 @@ function handleDrop(event) {
     })
         .then(response => response.json())
         .then(data => {
-            // 更新が成功した場合、ページをリロード
             if (data.success) {
                 window.location.reload();
             }
         });
 }
+
 
 
 function updateTaskDate(taskId, year, month, day) {
@@ -169,8 +163,8 @@ function openNewTaskModal(event) {
     // クリックされたセルを取得
     const cell = event.target.closest('td');
 
-    // セル内の日付を取得
-    const date = cell.querySelector('.date').textContent;
+    // セル内の日付を取得して整形
+    const date = cell.querySelector('.date').textContent.trim();
 
     // 選択された年と月を取得
     const year = document.getElementById('selectedYear').value;
@@ -187,55 +181,57 @@ function openNewTaskModal(event) {
     modal.show();
 }
 
-function submitNewTask() {
-    // 新規タスクフォームを取得
-    const form = document.getElementById('newTaskForm');
-
-    // フォームデータを作成
-    const formData = new FormData(form);
-
-    // タスクを作成するためのリクエストを送信
-    fetch('/createTask', {
-        method: 'POST',
-        body: formData
-    }).then(() => {
-        // ページをリロードして変更を反映
-        window.location.reload();
-    });
-}
 
 function submitNewTask() {
-    const title = document.getElementById('title').value;
-    const description = document.getElementById('description').value;
-    const status = document.getElementById('status').value;
-    const dueDate = document.getElementById('newTaskDate').value;
+    const selectedDate = document.getElementById('newTaskDate').value;
+    console.log("選択された日付:", selectedDate);
 
-    fetch('/createTaskPage/create', {
+    const taskData = {
+        title: document.getElementById('title').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        status: "1",
+        dueDate: selectedDate,
+        priority: document.getElementById('priority').value,
+        userId: 1
+    };
+
+    console.log("送信するデータ:", taskData);
+
+    fetch('/createTaskPage/createFromCalendar', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json'
         },
-        body: `title=${encodeURIComponent(title)}&description=${encodeURIComponent(description)}&status=${status}&dueDate=${dueDate}&userId=1&priority=1`
-    }).then(response => {
-        if (response.ok) {
+        body: JSON.stringify(taskData)
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const modal = bootstrap.Modal.getInstance(document.getElementById('newTaskModal'));
+            modal.hide();
             window.location.reload();
-        }
-    });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
 }
 
 
-// 既存の登録エンドポイントにPOSTリクエストを送信
-fetch('/createTaskPage/create', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(data)
-}).then(response => {
-    if (response.ok) {
-        window.location.reload();
-    }
-});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

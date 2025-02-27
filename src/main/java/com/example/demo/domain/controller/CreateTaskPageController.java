@@ -1,8 +1,11 @@
 package com.example.demo.domain.controller;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -10,7 +13,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.domain.dto.TaskDto;
 import com.example.demo.domain.form.CreateTaskForm;
@@ -148,4 +153,33 @@ public class CreateTaskPageController {
 
         return "redirect:/mainPage";
     }
+
+    /**
+     * カレンダーからタスクを作成するエンドポイント
+     */
+    @PostMapping("/createTaskPage/createFromCalendar")
+    @ResponseBody
+    public ResponseEntity<?> createTaskFromCalendar(@RequestBody Map<String, String> taskData) {
+        try {
+            TaskDto task = new TaskDto();
+
+            // 日付の文字列を Date オブジェクトに変換
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date dueDate = dateFormat.parse(taskData.get("dueDate"));
+
+            task.setTitle(taskData.get("title"));
+            task.setDescription(taskData.get("description"));
+            task.setStatus("1");
+            task.setDueDate(dueDate); // 変換した Date オブジェクトを設定
+            task.setPriority(Integer.parseInt(taskData.get("priority")));
+            task.setUserId(1); // ユーザーID設定
+
+            createTaskService.setNewCreateTask(task);
+
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 }
