@@ -36,12 +36,14 @@
             </div>
 
             <div class="calendar-header d-flex justify-content-between m-3 align-items-center gap-3">
-                <a th:href="@{/calendar(year=${prevYear},month=${prevMonth})}" class="btn btn-info">&lt; 前月</a>
+                <a th:href="@{/calendar(year=${prevYear},month=${prevMonth})}" class="btn btn-outline-primary">&lt;
+                    前月</a>
                 <div class="d-flex align-items-center gap-3">
                     <h2>[[${currentYear}]]年[[${currentMonth}]]月</h2>
                     <a th:href="@{/calendar}" class="btn btn-sm btn-outline-secondary">今月</a>
                 </div>
-                <a th:href="@{/calendar(year=${nextYear},month=${nextMonth})}" class="btn btn-info">翌月 &gt;</a>
+                <a th:href="@{/calendar(year=${nextYear},month=${nextMonth})}" class="btn btn-outline-primary">翌月
+                    &gt;</a>
             </div>
             <div class="d-flex justify-content-between align-items-center m-3">
                 <div>
@@ -56,12 +58,12 @@
                     class="d-flex justify-content-end gap-2 mb-3">
                     <select name="year" class="form-select" style="width: auto;">
                         <option th:each="y : ${#numbers.sequence(2024, 2034)}" th:value="${y}" th:text="${y + '年'}"
-                            th:selected="${y == selectedYear}">
+                            th:selected="${y == currentYear}">
                         </option>
                     </select>
                     <select name="month" class="form-select" style="width: auto;">
                         <option th:each="m : ${#numbers.sequence(1, 12)}" th:value="${m}" th:text="${m + '月'}"
-                            th:selected="${m == selectedMonth}">
+                            th:selected="${m == currentMonth}">
                         </option>
                     </select>
                     <button type="submit" class="btn btn-primary">検索</button>
@@ -82,10 +84,12 @@
                     <tr th:each="week : ${calendar}">
                         <td th:each="day, dayStat : ${week}" th:class="${day.getMonthValue() == currentMonth ? 'current-month' : 'other-month'} + ' ' +
                             ${dayStat.index == 0 ? 'text-danger' : ''} + ' ' +
-                            ${dayStat.index == 6 ? 'text-primary' : ''} + ' align-top'" style="height: 100px;">
+                            ${dayStat.index == 6 ? 'text-primary' : ''} + ' align-top'" style="height: 100px;"
+                            ondrop="handleDrop(event)" ondragover="handleDragOver(event)">
                             <!-- <td th:each="day : ${week}"
                             th:class="${day.getMonthValue() == currentMonth ? 'current-month' : 'other-month'}" </td> -->
-                            <div class="date">[[${day.getDayOfMonth()}]]</div>
+                            <div class="date" onclick="openNewTaskModal(event)" style="cursor: pointer;">
+                                [[${day.getDayOfMonth()}]]</div>
                             <div class="tasks">
                                 <!-- タスク表示 -->
                                 <div th:each="task : ${monthTasks}"
@@ -97,7 +101,8 @@
                                         th:data-task-description="${task.description}"
                                         th:data-task-status="${task.status}"
                                         th:data-task-due-date="${#dates.format(task.dueDate, 'yyyy-MM-dd(E)')}"
-                                        onclick="showTaskDetail(this)" style="cursor: pointer;">
+                                        onclick="showTaskDetail(this)" style="cursor: pointer;" draggable="true"
+                                        ondragstart="handleDragStart(event)">
                                     </span>
                                 </div>
                             </div>
@@ -140,6 +145,49 @@
                 </div>
             </div>
         </div>
+
+        <!-- 新規タスクモーダル -->
+        <div class="modal fade" id="newTaskModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">新規タスク登録</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form id="newTaskForm">
+                            <input type="hidden" id="newTaskDate" name="dueDate">
+                            <input type="hidden" name="userId" value="1">
+                            <input type="hidden" name="priority" value="1">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">タイトル</label>
+                                <input type="text" class="form-control" id="title" name="title" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">詳細</label>
+                                <textarea class="form-control" id="description" name="description"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="status" class="form-label">進捗状況</label>
+                                <select class="form-select" id="status" name="status">
+                                    <option value="1">未着手</option>
+                                    <option value="2">確認中</option>
+                                    <option value="3">進行中</option>
+                                    <option value="4">完了</option>
+                                    <option value="5">中止</option>
+                                    <option value="6">キャンセル</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="button" class="btn btn-primary" onclick="submitNewTask()">登録</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
 
     </div>
 </body>

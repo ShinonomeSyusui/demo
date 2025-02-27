@@ -1,16 +1,25 @@
 package com.example.demo.domain.controller;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.demo.domain.dto.TaskDto;
+import com.example.demo.domain.repository.CreateTaskRepository;
 import com.example.demo.domain.repository.MainPageRepository;
 import com.example.demo.domain.service.MainPageService;
 
@@ -22,6 +31,9 @@ public class CalendarController {
 
     @Autowired
     MainPageRepository repository;
+
+    @Autowired
+    CreateTaskRepository createTaskRepository;
 
     /**
      * カレンダーを表示するメソッド
@@ -93,6 +105,39 @@ public class CalendarController {
         System.out.println(monthTasks + "ここだよ");
 
         return "calendar";
+    }
+
+    /**
+     * タスクを編集するエンドポイント
+     * 
+     * @param payload クライアントから送られたデータ
+     * @return 編集結果を含むレスポンス
+     */
+    @PostMapping("/editTask")
+    @ResponseBody
+    public Map<String, Object> editTask(@RequestBody Map<String, String> payload) {
+        // タスクID、年、月、日を取得
+        Integer taskId = Integer.parseInt(payload.get("taskId"));
+        Integer year = Integer.parseInt(payload.get("year"));
+        Integer month = Integer.parseInt(payload.get("month"));
+        Integer day = Integer.parseInt(payload.get("day"));
+
+        // 新しい期日の日付を作成
+        LocalDateTime newDueDate = LocalDateTime.of(year, month, day, 0, 0);
+
+        // 既存のタスク情報を取得
+        TaskDto taskDto = createTaskRepository.getEditTasks(taskId);
+
+        // タスクに新しい期日をセット
+        taskDto.setDueDate(Date.from(newDueDate.atZone(ZoneId.systemDefault()).toInstant()));
+
+        // タスクを更新
+        createTaskRepository.editTsks(taskDto);
+
+        // レスポンスを作成し、成功を示すフラグを設定
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        return response;
     }
 
 }
