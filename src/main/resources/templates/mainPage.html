@@ -253,6 +253,34 @@
             </nav>
         </div> -->
         </div>
+
+        <!-- ページの最後、</body>タグの直前に追加 -->
+        <script>
+            // ページ読み込み時にタスク一覧を取得
+            function loadTasks() {
+                fetch('/api/v1/tasks/list')
+                    .then(response => response.json())
+                    .then(tasks => {
+                        const taskList = document.getElementById('taskList');
+                        taskList.innerHTML = ''; // 既存のリストをクリア
+
+                        tasks.forEach(task => {
+                            taskList.innerHTML += `
+                        <tr>
+                            <td>${task.title}</td>
+                            <td>${task.description}</td>
+                            <td>${task.status}</td>
+                            <td>${task.dueDate}</td>
+                        </tr>
+                    `;
+                        });
+                    });
+            }
+
+            // ページ読み込み時に実行
+            document.addEventListener('DOMContentLoaded', loadTasks);
+        </script>
+
 </body>
 
 </html>
