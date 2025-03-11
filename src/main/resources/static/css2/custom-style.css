@@ -42,3 +42,64 @@
 .menu-bg-black {
     background-color: black !important;
 }
+
+/* 優先度による色分け - より強い指定に修正 */
+.badge.priority-1 {
+    border-left: 5px solid #ff0000;
+    padding-left: 10px;
+    margin-left: 5px;
+}
+
+.badge.priority-2 {
+    border-left: 5px solid #ff9900;
+    padding-left: 10px;
+    margin-left: 5px;
+}
+
+.badge.priority-3 {
+    border-left: 5px solid #ffff00;
+    padding-left: 10px;
+    margin-left: 5px;
+}
+
+.badge.priority-4 {
+    border-left: 5px solid #00ff00;
+    padding-left: 10px;
+    margin-left: 5px;
+}
+
+.badge.priority-5 {
+    border-left: 5px solid #808080;
+    padding-left: 10px;
+    margin-left: 5px;
+}
+
+
+/* タスクバッジのホバーエフェクト */
+.task-item .badge:hover {
+    transform: translateY(-2px);
+    transition: transform 0.2s ease;
+}
+
+/* フィルターセレクトボックスのスタイル */
+#priorityFilter {
+    min-width: 150px;
+    border-radius: 4px;
+}
+
+/* フィルター状態表示のスタイル */
+.filter-status {
+    font-size: 0.9rem;
+    color: #666;
+    padding: 4px 8px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+/* フィルターエリア全体のスタイル */
+.filter-area {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

@@ -107,7 +107,10 @@ public class CreateTaskPageController {
      * @return
      */
     @GetMapping(path = "/createTaskPage/edit", params = "taskId")
-    public String editTasks(Model model, @RequestParam(value = "taskId", required = false) Integer id,
+    public String editTasks(Model model,
+            @RequestParam(value = "taskId", required = false) Integer id,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) Integer month,
             CreateTaskForm form) {
         // 修正するタスクを引数のIDを元に、DBから取得
         TaskDto dto = createTaskService.getEditTasks(id);
@@ -126,6 +129,9 @@ public class CreateTaskPageController {
         model.addAttribute("priorityDisplayMap", priorityDisplayMap);
         model.addAttribute("taskId", dto.getId());
 
+        // 年月の情報をモデルに追加
+        model.addAttribute("year", year);
+        model.addAttribute("month", month);
         return "/editTaskPage";
     }
 
@@ -137,7 +143,10 @@ public class CreateTaskPageController {
      * @return
      */
     @PostMapping(path = "/createTaskPage/editTasks", params = "taskId")
-    public String createEditTasks(Model model, @RequestParam(value = "taskId") Integer id,
+    public String createEditTasks(Model model,
+            @RequestParam(value = "taskId") Integer id,
+            @RequestParam(value = "year") Integer year,
+            @RequestParam(value = "month") Integer month,
             @ModelAttribute CreateTaskForm form) {
 
         // Formの内容をDtoへ格納
@@ -151,7 +160,7 @@ public class CreateTaskPageController {
         // レコードの更新
         createTaskService.updateTask(dto);
 
-        return "redirect:/mainPage";
+        return "redirect:/calendar?year=" + year + "&month=" + month;
     }
 
     /**

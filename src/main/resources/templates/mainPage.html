@@ -7,6 +7,7 @@
     <title>予定一覧ページ</title>
     <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
     <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/mainPage.js"></script>
     <link rel="stylesheet" th:href="@{/css2/custom-style.css}">
     <!-- <link rel="stylesheet" th:href="@{/css2/mainPage.css}"> -->
 </head>
@@ -109,6 +110,7 @@
                 <div>
                     <a th:href="@{/calendar(year=${selectedYear}, month=${selectedMonth})}"
                         class="btn btn-bg-orange">カレンダーを表示</a>
+                    <a href="/daily" class="btn btn-bg-lime">デイリー表示</a>
                 </div>
                 <form th:if="${isAdmin == false}" th:action="@{/mainPage}" method="get"
                     class="d-flex justify-content-end gap-2 mb-3">

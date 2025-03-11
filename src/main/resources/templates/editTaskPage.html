@@ -25,6 +25,8 @@
                     <div class="card-body">
                         <form action="/createTaskPage/editTasks" method="post" th:object="${createTaskForm}">
                             <input type="hidden" name="taskId" th:value="${taskId}">
+                            <input type="hidden" name="year" th:value="${year}">
+                            <input type="hidden" name="month" th:value="${month}">
 
                             <!-- タイトルと優先度を横並びに -->
                             <div class="row mb-3">

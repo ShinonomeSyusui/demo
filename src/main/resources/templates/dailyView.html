@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>デイリースケジュール</title>
+    <link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css2/custom-style.css}">
+    <link rel="stylesheet" th:href="@{/css2/daily-view.css}">
+    <script src="/js/bootstrap.bundle.min.js"></script>
+    <script src="/js/daily-view.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <!-- ヘッダー部分 -->
+        <header>
+            <nav class="mt-3 navbar d-flex justify-content-between align-items-center bg-light p-3 rounded">
+                <div class="d-flex align-items-center gap-3">
+                    <a href="/calendar" class="btn btn-outline-primary">カレンダーへ戻る</a>
+                    <h2 class="mb-0">デイリースケジュール</h2>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <input type="date" id="dateSelector" class="form-control">
+                    <button class="btn btn-outline-success">新規タスク追加</button>
+                </div>
+            </nav>
+        </header>
+
+        <!-- タイムライン部分を明確に -->
+        <div class="timeline-container">
+            <div class="timeline-header">
+                <div class="d-flex justify-content-center align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-outline-primary">前日</button>
+                        <h3 class="mb-0" id="currentDate" th:text="${#dates.format(currentDate, 'yyyy年MM月dd日(E)')}">
+                        </h3>
+                        <button class="btn btn-outline-primary">翌日</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timeline-grid">
+            <!-- 0:00から23:30までの30分刻みのタイムスロット -->
+            <th:block th:each="hour : ${#numbers.sequence(0, 23)}">
+                <th:block th:each="minute : ${#numbers.sequence(0, 30, 30)}">
+                    <div class="time-slot">
+                        <div class="time-column">
+                            [[${hour + ':' + (#strings.length(minute) == 1 ? '0' + minute : minute)}]]
+                        </div>
+                        <div class="task-column">
+                            <!-- タスク表示 -->
+                            <th:block th:each="task : ${tasks}">
+                                <div th:if="${#dates.format(task.startTime, 'HH:mm') == hour + ':' + (#strings.length(minute) == 1 ? '0' + minute : minute)}"
+                                    th:class="'task-item ' + ${task.getPriorityColorClass()}"
+                                    th:data-task-id="${task.id}"
+                                    th:data-start-time="${#dates.format(task.startTime, 'HH:mm')}"
+                                    th:data-end-time="${#dates.format(task.endTime, 'HH:mm')}"
+                                    th:data-priority="${task.priority}">
+                                    <span th:text="${task.title}"></span>
+                                </div>
+                            </th:block>
+                        </div>
+                    </div>
+                </th:block>
+            </th:block>
+        </div>
+
+        <!-- タスク詳細モーダル -->
+        <div class="modal fade" id="taskDetailModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">タスク詳細</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <strong>タイトル：</strong>
+                            <span id="modalTaskTitle"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>時間：</strong>
+                            <input type="time" id="modalStartTime" class="form-control mb-2">
+                            <input type="time" id="modalEndTime" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <strong>詳細：</strong>
+                            <span id="modalTaskDescription"></span>
+                        </div>
+                        <div class="mb-3">
+                            <strong>優先度：</strong>
+                            <select id="modalTaskPriority" class="form-select">
+                                <option value="1">至急！</option>
+                                <option value="2">高</option>
+                                <option value="3">中</option>
+                                <option value="4">低</option>
+                                <option value="5">未設定</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <strong>進捗状況：</strong>
+                            <select id="modalTaskStatus" class="form-select">
+                                <option value="未着手">未着手</option>
+                                <option value="進行中">進行中</option>
+                                <option value="完了">完了</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+                        <button type="button" class="btn btn-primary" onclick="saveTaskChanges()">保存</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- トースト通知コンテナ -->
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
+        </div>
+
+        <!-- 既存のコンテナの下部に追加 -->
+        <div class="container">
+            <!-- 日付移動ボタン -->
+            <div class="date-navigation d-flex justify-content-between align-items-center my-3">
+                <button class="btn btn-outline-primary" onclick="navigateDate(-1)">前日</button>
+                <h3 id="currentDate" class="mb-0"></h3>
+                <button class="btn btn-outline-primary" onclick="navigateDate(1)">翌日</button>
+            </div>
+        </div>
+
+</body>
+
+</html>

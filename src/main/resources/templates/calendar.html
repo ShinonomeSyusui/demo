@@ -35,6 +35,9 @@
                 </nav>
             </div>
 
+            <!-- エラーメッセージ表示領域 -->
+            <div id="errorMessage" class="alert alert-danger" style="display: none;"></div>
+
             <div class="calendar-header d-flex justify-content-between m-3 align-items-center gap-3">
                 <a th:href="@{/calendar(year=${prevYear},month=${prevMonth})}" class="btn btn-outline-primary">&lt;
                     前月</a>
@@ -49,6 +52,29 @@
                 <div>
                     <a th:href="@{/mainPage(year=${currentYear},month=${currentMonth})}"
                         class="btn btn-bg-lime">一覧に戻る</a>
+                    <a href="/daily" class="btn btn-bg-lime">デイリー表示</a>
+                </div>
+
+                <!-- 優先度フィルター -->
+                <div class="d-flex gap-2">
+                    <select id="priorityFilter" class="form-select" onchange="filterTasksByPriority(this.value)">
+                        <option value="0">全ての優先度</option>
+                        <option value="1">至急！</option>
+                        <option value="2">高</option>
+                        <option value="3">中</option>
+                        <option value="4">低</option>
+                        <option value="5">未設定</option>
+                    </select>
+                </div>
+
+                <div id="batch-operation-buttons" style="display: none;" class="mb-3">
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" onclick="executeBatchStatusUpdate(1)">未着手に変更</button>
+                        <button class="btn btn-bg-orange" onclick="executeBatchStatusUpdate(2)">確認中に変更</button>
+                        <button class="btn btn-info" onclick="executeBatchStatusUpdate(3)">進行中に変更</button>
+                        <button class="btn btn-bg-lime" onclick="executeBatchStatusUpdate(4)">完了に変更</button>
+                        <button class="btn btn-bg-cokered" onclick="executeBatchDelete()">一括削除</button>
+                    </div>
                 </div>
 
                 <input type="hidden" id="selectedYear" th:value="${currentYear}">
@@ -95,11 +121,15 @@
                                 <div th:each="task : ${monthTasks}"
                                     th:if="${task.dueDate.toLocalDateTime().toLocalDate().isEqual(day)}"
                                     class="task-item">
+                                    <!-- チェックボックスを追加 -->
+                                    <input type="checkbox" th:id="'task-checkbox-' + ${task.id}"
+                                        th:onclick="'toggleTaskSelection(' + ${task.id} + ')'"
+                                        class="task-select-checkbox">
                                     <span th:text="${task.title}"
-                                        th:class="${'badge ' + task.textBadgeColors() + ' hover-shadow'}"
+                                        th:class="${'badge ' + task.textBadgeColors() + ' hover-shadow'} + ' priority-' + ${task.priority}"
                                         th:data-task-id="${task.id}" th:data-task-title="${task.title}"
                                         th:data-task-description="${task.description}"
-                                        th:data-task-status="${task.status}"
+                                        th:data-task-status="${task.status}" th:data-task-priority="${task.priority}"
                                         th:data-task-due-date="${#dates.format(task.dueDate, 'yyyy-MM-dd(E)')}"
                                         onclick="showTaskDetail(this)" style="cursor: pointer;" draggable="true"
                                         ondragstart="handleDragStart(event)">
@@ -135,6 +165,17 @@
                         <div class="mb-3">
                             <strong>期限：</strong>
                             <span id="taskDueDate"></span>
+                        </div>
+                        <!-- 優先度選択を追加 -->
+                        <div class="mb-3">
+                            <strong>優先度：</strong>
+                            <select id="taskPriority" class="form-select" onchange="handlePriorityChange(event)">
+                                <option value="1">至急！</option>
+                                <option value="2">高</option>
+                                <option value="3">中</option>
+                                <option value="4">低</option>
+                                <option value="5">未設定</option>
+                            </select>
                         </div>
                     </div>
                     <div class="modal-footer">

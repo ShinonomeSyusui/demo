@@ -1,5 +1,6 @@
 package com.example.demo.domain.dto;
 
+import java.sql.Time;
 import java.util.Date;
 
 import lombok.Data;
@@ -18,6 +19,11 @@ public class TaskDto {
     private String formattedDueDate; // 文字列変換後の締切日
     private Integer year;
     private Integer month;
+
+    // 新規追加フィールド
+    private Time startTime; // 開始時間
+    private Time endTime; // 終了時間
+    private String timeSlot; // 表示用の時間枠
 
     /**
      * 進捗表示欄の進捗状況によって文字色を変える処理
@@ -108,5 +114,15 @@ public class TaskDto {
 
     public String getPriorityColorClass() {
         return "priority-" + (this.priority != null ? this.priority : 5);
+    }
+
+    // 時間枠のフォーマットメソッド
+    public String getFormattedTimeSlot() {
+        if (startTime == null || endTime == null) {
+            return "";
+        }
+        return String.format("%s - %s",
+                startTime.toString().substring(0, 5),
+                endTime.toString().substring(0, 5));
     }
 }

@@ -1,8 +1,10 @@
 package com.example.demo.domain.service;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Service;
 
 import com.example.demo.domain.dto.TaskDto;
 import com.example.demo.domain.repository.MainPageRepository;
+import com.example.demo.domain.restcontroller.ResourceNotFoundException;
+import com.example.demo.domain.restcontroller.TaskPriorityUpdateRequest;
 
 @Service
 public class MainPageService {
@@ -18,6 +22,11 @@ public class MainPageService {
 
     @Autowired
     TaskDto dto;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    TaskPriorityUpdateRequest priorityUpdateRequest;
 
     /**
      * 管理者(admin)用のログイン処理
@@ -168,6 +177,106 @@ public class MainPageService {
 
         // リポジトリからユーザー名、年、月、オフセット、ページサイズを使用してタスクを取得
         return repository.getTasksByUserName(usersName, year, month, offset, pageSize);
+    }
+
+    /**
+     * タスクの優先度を更新するメソッド
+     * 
+     * @param taskId   タスクのID
+     * @param priority 更新する優先度
+     */
+    public void updateTaskPriority(Integer taskId, Integer priority) {
+        System.out.println("SQL実行前の確認 - taskId: " + taskId + ", priority: " + priority);
+        // SQLクエリ: 優先度を更新し、削除フラグが立っていないタスクを対象とする
+        String sql = "UPDATE tasks SET priority = ? WHERE id = ? AND del_flg = '0'";
+
+        // SQLクエリを実行し、更新された行数を取得
+        int updatedRows = jdbcTemplate.update(sql, priority, taskId);
+
+        // 更新された行が0の場合は、指定したタスクが見つからなかったとして例外をスロー
+        if (updatedRows == 0) {
+            throw new ResourceNotFoundException("Task", "id", taskId);
+        }
+
+        sql = "UPDATE tasks SET priority = ? WHERE id = ? AND del_flg = '0'";
+        jdbcTemplate.update(sql, priority, taskId);
+
+        System.out.println("SQL実行完了");
+    }
+
+    /**
+     * 複数のタスクの優先度を一括で更新するメソッド
+     * 
+     * @param requests 更新リクエストのリスト（各リクエストにはタスクIDと新しい優先度が含まれる）
+     */
+    public void updateBatchPriorities(List<TaskPriorityUpdateRequest> requests) {
+        // SQLクエリ: 優先度を更新し、削除フラグが立っていないタスクを対象とする
+        String sql = "UPDATE tasks SET priority = ? WHERE id = ? AND del_flg = '0'";
+
+        // 各リクエストに対してSQLクエリを実行
+        for (TaskPriorityUpdateRequest request : requests) {
+            jdbcTemplate.update(sql, request.getPriority(), request.getTaskId());
+        }
+    }
+
+    public List<TaskDto> getDailyTasks(Integer userId, Date date) {
+        String sql = """
+                SELECT t.*, u.username
+                FROM tasks t
+                JOIN users u ON t.user_id = u.id
+                WHERE t.user_id = ?
+                AND DATE(t.due_date) = ?
+                AND t.del_flg = '0'
+                ORDER BY t.start_time
+                """;
+
+        return jdbcTemplate.query(sql,
+                new Object[] { userId, date },
+                (rs, rowNum) -> {
+                    TaskDto task = new TaskDto();
+                    task.setId(rs.getInt("id"));
+                    task.setTitle(rs.getString("title"));
+                    task.setDescription(rs.getString("description"));
+                    task.setStatus(rs.getString("status"));
+                    task.setDueDate(rs.getTimestamp("due_date"));
+                    task.setStartTime(rs.getTime("start_time"));
+                    task.setEndTime(rs.getTime("end_time"));
+                    task.setPriority(rs.getInt("priority"));
+                    task.setUsername(rs.getString("username"));
+                    return task;
+                });
+    }
+
+    public void updateTaskTime(Integer taskId, String startTime, String endTime) {
+        String sql = "UPDATE tasks SET start_time = ?, end_time = ? WHERE id = ? AND del_flg = '0'";
+        int updatedRows = jdbcTemplate.update(sql, startTime, endTime, taskId);
+
+        if (updatedRows == 0) {
+            throw new ResourceNotFoundException("Task", "id", taskId);
+        }
+    }
+
+    public void createDailyTask(TaskDto taskDto) {
+        String sql = """
+                    INSERT INTO tasks (
+                        user_id, title, description, status,
+                        due_date, start_time, end_time, priority,
+                        created_at, updated_at, del_flg
+                    ) VALUES (
+                        ?, ?, ?, ?,
+                        CURRENT_DATE, ?, ?, ?,
+                        CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, '0'
+                    )
+                """;
+
+        jdbcTemplate.update(sql,
+                taskDto.getUserId(),
+                taskDto.getTitle(),
+                taskDto.getDescription(),
+                taskDto.getStatus(),
+                taskDto.getStartTime(),
+                taskDto.getEndTime(),
+                taskDto.getPriority());
     }
 
 }
